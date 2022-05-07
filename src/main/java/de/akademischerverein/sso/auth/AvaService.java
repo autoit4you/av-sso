@@ -1,6 +1,7 @@
-package de.akademischerverein.sso.user;
+package de.akademischerverein.sso.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,13 +17,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HexFormat;
+
+import static de.akademischerverein.sso.auth.AvaPerson.*;
 
 @Service
 @Slf4j
@@ -38,6 +41,12 @@ public class AvaService {
     private String ava_changes;
     @Value("${ava.encryption_key}")
     private String ava_key;
+
+    private final LoginTokenRepository loginTokenRepository;
+
+    public AvaService(LoginTokenRepository loginTokenRepository) {
+        this.loginTokenRepository = loginTokenRepository;
+    }
 
     public void loadPersons() {
         var client = HttpClient.newBuilder()
@@ -97,16 +106,33 @@ public class AvaService {
         }
     }
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        try {
-            var avId = Long.parseLong(username);
-
-            if (!persons.containsKey(avId)) {
-                throw new UsernameNotFoundException("avId not found");
+    public AvaPerson userByEmail(String email) throws UsernameNotFoundException {
+        for (var person : persons.values()) {
+            if (person.get(EMAIL_0, "").equalsIgnoreCase(email)) {
+                return person;
+            } else if (person.get(EMAIL_1, "").equalsIgnoreCase(email)) {
+                return person;
+            } else if (person.get(EMAIL_2, "").equalsIgnoreCase(email)) {
+                return person;
             }
-            return persons.get(avId);
-        } catch (NumberFormatException ex) {
-            throw new UsernameNotFoundException(ex.getMessage());
         }
+
+        throw new UsernameNotFoundException("email not found");
+    }
+
+    public void sendLoginToken(AvaPerson person) {
+        var currentToken = loginTokenRepository.findByAvid(person.getAvid());
+        if (currentToken.isPresent()) {
+            if (currentToken.get().getExpires().isAfter(ZonedDateTime.now())) {
+                return;
+            } else {
+                loginTokenRepository.delete(currentToken.get());
+            }
+        }
+
+        var token = new LoginToken(ZonedDateTime.now().plusMinutes(5), person.getAvid());
+        loginTokenRepository.save(token);
+
+        log.info("Generated token {}", token.getId());
     }
 }

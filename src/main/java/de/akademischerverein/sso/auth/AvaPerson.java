@@ -1,4 +1,4 @@
-package de.akademischerverein.sso.user;
+package de.akademischerverein.sso.auth;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
