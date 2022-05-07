@@ -14,7 +14,7 @@
     <name>av-sso</name>
     <description>av-sso</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>
