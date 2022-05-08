@@ -1,24 +1,22 @@
-package de.akademischerverein.sso.auth;
+package de.akademischerverein.sso.auth.ava;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
-public class AvaPerson {
+public class AvaPerson implements Serializable {
     public static final String EMAIL_0 = "Email_0";
     public static final String EMAIL_1 = "Email_1";
     public static final String EMAIL_2 = "Email_2";
 
     @Getter
-    private final long avid;
+    private long avid;
     @Getter
     private final Map<String, String> properties = new HashMap<>();
 

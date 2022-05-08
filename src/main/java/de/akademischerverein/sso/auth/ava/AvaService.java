@@ -1,5 +1,7 @@
-package de.akademischerverein.sso.auth;
+package de.akademischerverein.sso.auth.ava;
 
+import de.akademischerverein.sso.auth.LoginToken;
+import de.akademischerverein.sso.auth.LoginTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,7 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
+import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
@@ -26,7 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static de.akademischerverein.sso.auth.AvaPerson.*;
+import static de.akademischerverein.sso.auth.ava.AvaPerson.*;
 
 @Service
 @Slf4j
@@ -42,14 +44,24 @@ public class AvaService {
     private String ava_changes;
     @Value("${ava.encryption_key}")
     private String ava_key;
-
-    private final LoginTokenRepository loginTokenRepository;
+    private LoginTokenRepository loginTokenRepository;
 
     public AvaService(LoginTokenRepository loginTokenRepository) {
         this.loginTokenRepository = loginTokenRepository;
     }
 
     @PostConstruct
+    public void loadPersonsFromLocalDb() {
+        try (var ois = new ObjectInputStream(new FileInputStream("avaDb.bin"))) {
+            var o = ois.readObject();
+            persons = (HashMap<Long, AvaPerson>) o;
+            log.info("Loaded {} persons/accounts from local AVA database", persons.size());
+        } catch (Exception e) {
+            log.warn("Could not load local db. Falling back to external database");
+            loadPersons();
+        }
+    }
+
     @Scheduled(fixedRate = 15, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
     public void loadPersons() {
         var client = HttpClient.newBuilder()
@@ -64,7 +76,25 @@ public class AvaService {
         loadAvaFile(client, ava_changes, newPersons);
         persons = newPersons;
 
-        log.info("Loaded {} persons/accounts!", persons.size());
+        FileOutputStream fout = null;
+        ObjectOutputStream oos = null;
+        try {
+            fout = new FileOutputStream("avaDb.bin");
+            oos = new ObjectOutputStream(fout);
+            oos.writeObject(persons);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        log.info("Loaded {} persons/accounts from AVA database", persons.size());
     }
 
     private void loadAvaFile(HttpClient client, String url, Map<Long, AvaPerson> newPersons) {
