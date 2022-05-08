@@ -157,7 +157,7 @@ public class AvaService {
         var person = persons.get(usedToken.get().getAvid());
 
         var sc = SecurityContextHolder.getContext();
-        sc.setAuthentication(new UsernamePasswordAuthenticationToken(person, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+        sc.setAuthentication(new UsernamePasswordAuthenticationToken(person, null, person.getAuthorities()));
         return true;
     }
 }

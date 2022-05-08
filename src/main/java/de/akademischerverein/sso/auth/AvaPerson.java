@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @ToString
@@ -34,7 +35,37 @@ public class AvaPerson {
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Set.of(new SimpleGrantedAuthority("ROLE_USER"));
+        var roles = new ArrayList<String>();
+        if (get("Ist_Ausgeschieden", "nein").equals("nein")) {
+            // Aktivitas
+            if (get("AKT_JuMi", "nein").equals("ja")) {
+                roles.add("ROLE_JUMI");
+            }
+            if (get("AKT_VoMi", "nein").equals("ja")) {
+                roles.add("ROLE_VOMI");
+            }
+            if (get("AV_VerkGast", "nein").equals("ja")) {
+                roles.add("ROLE_VERKEHRSGAST");
+            }
+            if (get("AKT_Ex", "nein").equals("ja")) {
+                roles.add("ROLE_EXAKTIV");
+            }
+            if (!roles.isEmpty()) {
+                roles.add("ROLE_AKTIVITAS");
+            }
+
+            // ADAHschaft
+            if (get("ADH_OrdMi", "nein").equals("ja")) {
+                roles.add("ROLE_ADAH");
+            }
+
+            if (!roles.isEmpty()) {
+                roles.add("ROLE_AV");
+            }
+        }
+        roles.add("ROLE_USER");
+
+        return roles.stream().map(SimpleGrantedAuthority::new).toList();
     }
 
     public String getUserId() {

@@ -5,6 +5,10 @@
     <title>Index</title>
 </head>
 <body>
-    Hallo <span th:text="${vorname}"></span> <span th:text="${name}"></span>
+    Hallo <span th:text="${vorname}"></span> <span th:text="${name}"></span><br>
+    <br>
+    <ul>
+        <li th:each="role : ${roles}" th:text="${role}"></li>
+    </ul>
 </body>
 </html>

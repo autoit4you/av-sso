@@ -2,6 +2,7 @@ package de.akademischerverein.sso.web;
 
 import de.akademischerverein.sso.auth.AvaPerson;
 import de.akademischerverein.sso.auth.AvaService;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
@@ -51,6 +52,7 @@ public class LoginController {
     public String index(Model model, @AuthenticationPrincipal AvaPerson auth) {
         model.addAttribute("vorname", auth.get("Vorname"));
         model.addAttribute("name", auth.get("Name"));
+        model.addAttribute("roles", auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
         return "auth";
     }
 }
