@@ -160,6 +160,13 @@ public class AvaService {
         throw new UsernameNotFoundException("email not found");
     }
 
+    public Optional<AvaPerson> findById(long avid) {
+        if (persons.containsKey(avid)) {
+            return Optional.of(persons.get(avid));
+        }
+        return Optional.empty();
+    }
+
     public void sendLoginToken(AvaPerson person) {
         var currentToken = loginTokenRepository.findByAvid(person.getAvid());
         if (currentToken.isPresent()) {
@@ -174,25 +181,5 @@ public class AvaService {
         loginTokenRepository.save(token);
 
         log.info("Generated token {}", token.getId());
-    }
-
-    public boolean attemptLoginWithToken(String token) {
-        var usedToken = loginTokenRepository.findById(token);
-
-        if (usedToken.isEmpty()) {
-            return false;
-        }
-
-        loginTokenRepository.delete(usedToken.get());
-
-        if (usedToken.get().getExpires().isBefore(ZonedDateTime.now())) {
-            return false;
-        }
-
-        var person = persons.get(usedToken.get().getAvid());
-
-        var sc = SecurityContextHolder.getContext();
-        sc.setAuthentication(new UsernamePasswordAuthenticationToken(person, null, person.getAuthorities()));
-        return true;
     }
 }
