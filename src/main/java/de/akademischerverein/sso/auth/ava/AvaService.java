@@ -2,6 +2,7 @@ package de.akademischerverein.sso.auth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,13 +24,14 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static de.akademischerverein.sso.auth.AvaPerson.*;
 
 @Service
 @Slf4j
 public class AvaService {
-    private final HashMap<Long, AvaPerson> persons = new HashMap<>();
+    private HashMap<Long, AvaPerson> persons = new HashMap<>();
     @Value("${ava.username}")
     private String ava_username;
     @Value("${ava.password}")
@@ -48,6 +50,7 @@ public class AvaService {
     }
 
     @PostConstruct
+    @Scheduled(fixedRate = 15, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
     public void loadPersons() {
         var client = HttpClient.newBuilder()
                 .authenticator(new Authenticator(){
@@ -56,13 +59,15 @@ public class AvaService {
                         return new PasswordAuthentication(ava_username, ava_password.toCharArray());
                     }
                 }).build();
-        loadAvaFile(client, ava_fix);
-        loadAvaFile(client, ava_changes);
+        var newPersons = new HashMap<Long, AvaPerson>();
+        loadAvaFile(client, ava_fix, newPersons);
+        loadAvaFile(client, ava_changes, newPersons);
+        persons = newPersons;
 
         log.info("Loaded {} persons/accounts!", persons.size());
     }
 
-    private void loadAvaFile(HttpClient client, String url) {
+    private void loadAvaFile(HttpClient client, String url, Map<Long, AvaPerson> newPersons) {
         var avidFilter = Set.of(132890L, 121541L, 129883L, 127749L, 136964L, 138516L, 106409L, 119019L, 114945L);
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -95,11 +100,11 @@ public class AvaService {
                         continue;
                     }
 
-                    var p = persons.getOrDefault(avId, new AvaPerson(avId));
+                    var p = newPersons.getOrDefault(avId, new AvaPerson(avId));
                     p.setProperty(attrib, newValue);
 
-                    if (!persons.containsKey(avId)) {
-                        persons.put(avId, p);
+                    if (!newPersons.containsKey(avId)) {
+                        newPersons.put(avId, p);
                     }
                 }
             }
