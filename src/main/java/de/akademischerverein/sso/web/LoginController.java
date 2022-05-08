@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,9 +38,17 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/login/token/{token}")
+    public String magicLogin(@PathVariable("token") String token) {
+        if (avaService.attemptLoginWithToken(token)) {
+            return "redirect:/";
+        } else {
+            return "redirect:/login";
+        }
+    }
+
     @GetMapping
     public String index(Model model, @AuthenticationPrincipal AvaPerson auth) {
-        System.out.println(auth);
         model.addAttribute("vorname", auth.get("Vorname"));
         model.addAttribute("name", auth.get("Name"));
         return "auth";

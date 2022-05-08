@@ -1,9 +1,10 @@
 package de.akademischerverein.sso.auth;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +22,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HexFormat;
+import java.util.*;
 
 import static de.akademischerverein.sso.auth.AvaPerson.*;
 
@@ -134,5 +133,25 @@ public class AvaService {
         loginTokenRepository.save(token);
 
         log.info("Generated token {}", token.getId());
+    }
+
+    public boolean attemptLoginWithToken(String token) {
+        var usedToken = loginTokenRepository.findById(token);
+
+        if (usedToken.isEmpty()) {
+            return false;
+        }
+
+        loginTokenRepository.delete(usedToken.get());
+
+        if (usedToken.get().getExpires().isBefore(ZonedDateTime.now())) {
+            return false;
+        }
+
+        var person = persons.get(usedToken.get().getAvid());
+
+        var sc = SecurityContextHolder.getContext();
+        sc.setAuthentication(new UsernamePasswordAuthenticationToken(person, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+        return true;
     }
 }

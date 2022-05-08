@@ -14,7 +14,7 @@ public class SsoConfiguration extends WebSecurityConfigurerAdapter {
         http
                 //.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login").permitAll()
+                .antMatchers("/login", "/login/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().disable();
