@@ -12,11 +12,4 @@ public class AvSsoApplication {
     public static void main(String[] args) {
         SpringApplication.run(AvSsoApplication.class, args);
     }
-
-    @Bean
-    public CommandLineRunner cmdRunner(AvaService loader) {
-        return (args) -> {
-              loader.loadPersons();
-        };
-    }
 }

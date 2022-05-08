@@ -3,11 +3,11 @@ package de.akademischerverein.sso.auth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -47,6 +47,7 @@ public class AvaService {
         this.loginTokenRepository = loginTokenRepository;
     }
 
+    @PostConstruct
     public void loadPersons() {
         var client = HttpClient.newBuilder()
                 .authenticator(new Authenticator(){
