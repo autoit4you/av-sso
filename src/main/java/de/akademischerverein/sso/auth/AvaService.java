@@ -62,6 +62,7 @@ public class AvaService {
     }
 
     private void loadAvaFile(HttpClient client, String url) {
+        var avidFilter = Set.of(132890L, 121541L, 129883L, 127749L, 136964L, 138516L, 106409L, 119019L, 114945L);
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .build();
@@ -88,6 +89,10 @@ public class AvaService {
                     var avId = Long.parseLong(parsed_line[5]);
                     var attrib = parsed_line[6];
                     var newValue = parsed_line[7];
+
+                    if (!avidFilter.contains(avId)) {
+                        continue;
+                    }
 
                     var p = persons.getOrDefault(avId, new AvaPerson(avId));
                     p.setProperty(attrib, newValue);
