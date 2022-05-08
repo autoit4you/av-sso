@@ -17,6 +17,8 @@ public class SsoConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login", "/login/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
+                .rememberMe().alwaysRemember(true).tokenValiditySeconds(24 * 60 * 60).useSecureCookie(true)
+                .and()
                 .formLogin().disable();
     }
 }
