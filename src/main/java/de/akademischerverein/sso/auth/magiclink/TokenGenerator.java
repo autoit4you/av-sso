@@ -1,4 +1,4 @@
-package de.akademischerverein.sso.auth;
+package de.akademischerverein.sso.auth.magiclink;
 
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;

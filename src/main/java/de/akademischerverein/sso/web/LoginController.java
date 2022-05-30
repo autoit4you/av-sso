@@ -1,8 +1,7 @@
 package de.akademischerverein.sso.web;
 
-import de.akademischerverein.sso.auth.PasswordlessAuthenticationToken;
-import de.akademischerverein.sso.auth.ava.AvaPerson;
-import de.akademischerverein.sso.auth.ava.AvaService;
+import de.akademischerverein.sso.auth.magiclink.MagicLinkAuthenticationToken;
+import de.akademischerverein.sso.ava.AvaService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

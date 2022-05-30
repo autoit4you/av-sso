@@ -1,4 +1,4 @@
-package de.akademischerverein.sso.auth.ava;
+package de.akademischerverein.sso.ava;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,6 +1,6 @@
 package de.akademischerverein.sso;
 
-import de.akademischerverein.sso.auth.SsoAuthenticationProvider;
+import de.akademischerverein.sso.auth.magiclink.MagicLinkAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

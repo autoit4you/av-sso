@@ -1,12 +1,10 @@
-package de.akademischerverein.sso.auth.ava;
+package de.akademischerverein.sso.ava;
 
-import de.akademischerverein.sso.auth.LoginToken;
-import de.akademischerverein.sso.auth.LoginTokenRepository;
+import de.akademischerverein.sso.auth.magiclink.LoginToken;
+import de.akademischerverein.sso.auth.magiclink.LoginTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static de.akademischerverein.sso.auth.ava.AvaPerson.*;
+import static de.akademischerverein.sso.ava.AvaPerson.*;
 
 @Service
 @Slf4j
@@ -177,7 +175,7 @@ public class AvaService {
             }
         }
 
-        var token = new LoginToken(ZonedDateTime.now().plusMinutes(5), person.getAvid());
+        var token = new LoginToken(ZonedDateTime.now().plusMinutes(5), person.getUserId());
         loginTokenRepository.save(token);
 
         log.info("Generated token {}", token.getId());

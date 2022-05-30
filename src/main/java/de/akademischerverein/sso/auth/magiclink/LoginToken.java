@@ -1,4 +1,4 @@
-package de.akademischerverein.sso.auth;
+package de.akademischerverein.sso.auth.magiclink;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -17,7 +17,7 @@ public class LoginToken {
     @Id
     @Getter @Setter
     @GeneratedValue(generator = TokenGenerator.generatorName)
-    @GenericGenerator(name = TokenGenerator.generatorName, strategy = "de.akademischerverein.sso.auth.TokenGenerator")
+    @GenericGenerator(name = TokenGenerator.generatorName, strategy = "de.akademischerverein.sso.auth.magiclink.TokenGenerator")
     private String id;
 
     @Getter @Setter
