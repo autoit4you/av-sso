@@ -45,24 +45,25 @@ public class LoginController {
 
     @GetMapping("/login/token/{token}")
     public String magicLogin(@PathVariable("token") String token) {
-        var magicToken = new PasswordlessAuthenticationToken(token);
+        var magicToken = new MagicLinkAuthenticationToken(token);
         var auth = authenticationManager.authenticate(magicToken);
 
         if (auth.isAuthenticated()) {
             SecurityContextHolder.getContext().setAuthentication(auth);
-            return "redirect:/";
+            return "redirect:/admin/index.html";
         } else {
             return "redirect:/login";
         }
     }
 
-    @GetMapping
-    public String index(Model model, @AuthenticationPrincipal AvaPerson auth) {
-        System.out.println(auth);
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
-        model.addAttribute("vorname", auth.get("Vorname"));
-        model.addAttribute("name", auth.get("Name"));
-        model.addAttribute("roles", auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
+    @GetMapping({"/admin/index.html", "/admin/"})
+    public String index(Model model, @AuthenticationPrincipal String userId) {
+        var person = avaService.findById(Long.parseLong(userId.split(":")[1])).get();
+        model.addAttribute("person", person);
+        model.addAttribute("roles", person.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).filter(s -> s.startsWith("ROLE_")).toList());
+        model.addAttribute("roles", person.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).filter(s -> s.startsWith("ROLE_")).toList());
         return "auth";
     }
 }

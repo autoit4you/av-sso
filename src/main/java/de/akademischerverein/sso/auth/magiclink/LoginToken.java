@@ -26,10 +26,10 @@ public class LoginToken {
 
     @Getter @Setter
     @Column(unique = true, nullable = false)
-    private long avid;
+    private String userId;
 
-    public LoginToken(ZonedDateTime expires, long avid) {
+    public LoginToken(ZonedDateTime expires, String userId) {
         this.expires = expires;
-        this.avid = avid;
+        this.userId = userId;
     }
 }

@@ -14,23 +14,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableWebSecurity
 public class SsoConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
-    private SsoAuthenticationProvider ssoAuthenticationProvider;
+    private MagicLinkAuthenticationProvider magicLinkAuthenticationProvider;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                //.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login", "/login/**").permitAll()
+                .antMatchers("/idp", "/idp/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .rememberMe().alwaysRemember(true).tokenValiditySeconds(24 * 60 * 60).useSecureCookie(true)
                 .and()
                 .formLogin().disable();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(ssoAuthenticationProvider);
+        auth.authenticationProvider(magicLinkAuthenticationProvider);
     }
 
     @Bean
