@@ -18,7 +18,11 @@ public class AvaPerson implements Serializable {
     @Getter
     private long avid;
     @Getter
-    private final Map<String, String> properties = new HashMap<>();
+    private Map<String, String> properties = new HashMap<>();
+
+    public AvaPerson(long avid) {
+        this.avid = avid;
+    }
 
     public String get(String prop, String defaultValue) {
         return properties.getOrDefault(prop, defaultValue);
@@ -67,7 +71,7 @@ public class AvaPerson implements Serializable {
     }
 
     public String getUserId() {
-        return Long.toString(avid);
+        return "ava:" + avid;
     }
 
     public boolean isEnabled() {

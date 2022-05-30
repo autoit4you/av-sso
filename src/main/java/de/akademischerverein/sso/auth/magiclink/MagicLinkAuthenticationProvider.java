@@ -1,6 +1,6 @@
 package de.akademischerverein.sso.auth;
 
-import de.akademischerverein.sso.auth.ava.AvaService;
+import de.akademischerverein.sso.ava.AvaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -38,7 +38,7 @@ public class SsoAuthenticationProvider implements AuthenticationProvider {
         if (!person.get().isEnabled()) {
             throw new DisabledException("account is disabled");
         }
-        return new PasswordlessAuthenticationToken(person.get(), authenticationToken.getCredentials(), person.get().getAuthorities());
+        return new PasswordlessAuthenticationToken(person.get().getUserId(), authenticationToken.getCredentials(), person.get().getAuthorities());
     }
 
     @Override
